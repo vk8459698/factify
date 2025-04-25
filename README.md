@@ -118,7 +118,8 @@ Facty processes text locally and only sends the selected text to the configured 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
+Email:vk8459698@gmail.com
+Name:Vivek Kumar
 ## License
 
 [MIT License](LICENSE)

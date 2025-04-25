@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facty - Fact Check</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      width: 400px !important;
+      min-width: 400px;
+      max-height: 580px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      width: 100%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      position: relative;
+    }
+    
+    h1 {
+      color: #2a5885;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    .selected-text {
+      background-color: #f5f5f5;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      border-left: 4px solid #2a5885;
+    }
+    
+    .loading {
+      text-align: center;
+      margin: 40px 0;
+    }
+    
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2a5885;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .result-section {
+      margin-bottom: 30px;
+    }
+    
+    .result-section h2 {
+      font-size: 18px;
+      color: #2a5885;
+      margin-bottom: 10px;
+    }
+    
+    .verdict {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .true {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    
+    .false {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+    
+    .partially-true {
+      background-color: #fcf8e3;
+      color: #8a6d3b;
+    }
+    
+    .uncertain {
+      background-color: #e8eaed;
+      color: #666;
+    }
+    
+    .sources-list {
+      padding-left: 20px;
+    }
+    
+    .sources-list li {
+      margin-bottom: 10px;
+    }
+    
+    .sources-list a {
+      color: #2a5885;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    .sources-list a:hover {
+      text-decoration: underline;
+    }
+    
+    .source-snippet {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+      margin-bottom: 0;
+    }
+    
+    .source-title {
+      font-weight: bold;
+      color: #2a5885;
+    }
+    
+    .error-container {
+      text-align: center;
+      color: #a94442;
+      background-color: #f2dede;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .button {
+      background-color: #2a5885;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    
+    .button:hover {
+      background-color: #1c3f5f;
+    }
+    
+    .settings-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: transparent;
+      border: none;
+      color: #2a5885;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .settings-button svg {
+      margin-right: 4px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .settings-panel {
+      background-color: white;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 10;
+      overflow-y: auto;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .form-group input.error {
+      border-color: #a94442;
+    }
+    
+    .form-group small {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    
+    .save-button {
+      background-color: #2a5885;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    
+    .cancel-button {
+      background-color: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .error-message {
+      color: #a94442;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+    
+    .success-message {
+      color: #3c763d;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+    
+    .help-link {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    
+    .help-link a {
+      color: #2a5885;
+      text-decoration: none;
+    }
+    
+    .help-link a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 10px;
+    }
+    
+    .action-button {
+      background-color: #2a5885;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    .action-button svg {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .action-button:hover {
+      background-color: #1c3f5f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Facty - Fact Checker</h1>
+    
+    <button id="settingsBtn" class="settings-button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      Settings
+    </button>
+    
+    <!-- Action buttons section -->
+    <div class="action-buttons">
+      <button id="checkPageBtn" class="action-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Check This Page
+      </button>
+    </div>
+    
+    <div class="selected-text">
+      <p id="selectedText">No text selected</p>
+    </div>
+    
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Fact checking in progress...</p>
+    </div>
+    
+    <div id="result" class="hidden">
+      <div class="result-section">
+        <h2>Verdict:</h2>
+        <div id="verdict" class="verdict">Unknown</div>
+      </div>
+      
+      <div class="result-section">
+        <h2>Analysis:</h2>
+        <div id="analysis"></div>
+      </div>
+      
+      <div class="result-section">
+        <h2>Sources:</h2>
+        <ul id="sources" class="sources-list"></ul>
+      </div>
+    </div>
+    
+    <div id="error" class="error-container hidden">
+      <p>An error occurred while fact checking.</p>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
